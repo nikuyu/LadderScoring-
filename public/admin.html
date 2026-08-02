@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ladder Admin</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="container">
+  <h1>🛠 Ladder Admin</h1>
+
+  <div class="card" id="loginCard">
+    <h2>Login</h2>
+    <input type="password" id="passwordInput" placeholder="Admin password" />
+    <button onclick="login()">Log in</button>
+    <p class="error" id="loginError"></p>
+  </div>
+
+  <div id="adminArea" style="display:none;">
+    <div class="card">
+      <button class="secondary" onclick="logout()">Log out</button>
+      <button class="danger" onclick="resetLadder()">Reset ladder (keep players)</button>
+    </div>
+
+    <div class="card">
+      <h2>Players</h2>
+      <div id="playersList"></div>
+      <input type="text" id="newPlayerName" placeholder="Player name" />
+      <button onclick="addPlayer()">Add player</button>
+      <p class="error" id="playerError"></p>
+    </div>
+
+    <div class="card" id="setupCard">
+      <h2>Set Up Round 1</h2>
+      <p class="muted">Assign 4 players to each court (2 per team). This only happens once — every round after this is generated automatically.</p>
+      <div id="setupCourts"></div>
+      <button onclick="submitSetup()">Create Round 1</button>
+      <p class="error" id="setupError"></p>
+    </div>
+
+    <div class="card" id="scoreCard" style="display:none;">
+      <h2>Enter Scores — <span id="currentRoundLabel"></span></h2>
+      <div id="scoreCourts"></div>
+      <p class="error" id="scoreError"></p>
+      <p class="success" id="scoreSuccess"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+let players = [];
+let rounds = [];
+
+async function checkAuth() {
+  const r = await fetch('/api/admin/check').then(r => r.json());
+  if (r.loggedIn) {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('adminArea').style.display = 'block';
+    await refreshAll();
+  }
+}
+
+async function login() {
+  const password = document.getElementById('passwordInput').value;
+  const res = await fetch('/api/admin/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ password }),
+  });
+  if (res.ok) {
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('adminArea').style.display = 'block';
+    await refreshAll();
+  } else {
+    document.getElementById('loginError').textContent = 'Wrong password.';
+  }
+}
+
+async function logout() {
+  await fetch('/api/admin/logout', { method: 'POST' });
+  location.reload();
+}
+
+async function resetLadder() {
+  if (!confirm('This deletes all rounds and scores (players stay). Continue?')) return;
+  await fetch('/api/rounds/reset', { method: 'POST' });
+  await refreshAll();
+}
+
+async function refreshAll() {
+  players = await fetch('/api/players').then(r => r.json());
+  rounds = await fetch('/api/rounds').then(r => r.json());
+  renderPlayers();
+  if (rounds.length === 0) {
+    document.getElementById('setupCard').style.display = 'block';
+    document.getElementById('scoreCard').style.display = 'none';
+    renderSetupForm();
+  } else {
+    document.getElementById('setupCard').style.display = 'none';
+    document.getElementById('scoreCard').style.display = 'block';
+    renderScoreForm();
+  }
+}
+
+function renderPlayers() {
+  const div = document.getElementById('playersList');
+  if (players.length === 0) {
+    div.innerHTML = '<p class="muted">No players yet. Add at least 16 to fill all 4 courts.</p>';
+    return;
+  }
+  div.innerHTML = '<ul>' + players.map(p => `<li>${p.name} <button class="secondary" style="padding:2px 8px;font-size:0.8em;" onclick="removePlayer('${p._id}')">remove</button></li>`).join('') + '</ul>';
+}
+
+async function addPlayer() {
+  const name = document.getElementById('newPlayerName').value.trim();
+  if (!name) return;
+  const res = await fetch('/api/players', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name }),
+  });
+  if (res.ok) {
+    document.getElementById('newPlayerName').value = '';
+    document.getElementById('playerError').textContent = '';
+    await refreshAll();
+  } else {
+    const err = await res.json();
+    document.getElementById('playerError').textContent = err.error;
+  }
+}
+
+async function removePlayer(id) {
+  if (!confirm('Remove this player?')) return;
+  await fetch('/api/players/' + id, { method: 'DELETE' });
+  await refreshAll();
+}
+
+function playerOptions(selectedId) {
+  return players.map(p => `<option value="${p._id}" ${p._id===selectedId?'selected':''}>${p.name}</option>`).join('');
+}
+
+function renderSetupForm() {
+  const div = document.getElementById('setupCourts');
+  let html = '';
+  for (const court of [1,2,3,4]) {
+    html += `<div class="match-row">
+      <span class="court-badge court-${court}">Court ${court}</span>
+      <select class="player-select" id="c${court}_a1"><option value="">Team A - Player 1</option>${playerOptions()}</select>
+      <select class="player-select" id="c${court}_a2"><option value="">Team A - Player 2</option>${playerOptions()}</select>
+      <span>vs</span>
+      <select class="player-select" id="c${court}_b1"><option value="">Team B - Player 1</option>${playerOptions()}</select>
+      <select class="player-select" id="c${court}_b2"><option value="">Team B - Player 2</option>${playerOptions()}</select>
+    </div>`;
+  }
+  div.innerHTML = html;
+}
+
+async function submitSetup() {
+  const matches = [];
+  const usedPlayers = new Set();
+  for (const court of [1,2,3,4]) {
+    const a1 = document.getElementById(`c${court}_a1`).value;
+    const a2 = document.getElementById(`c${court}_a2`).value;
+    const b1 = document.getElementById(`c${court}_b1`).value;
+    const b2 = document.getElementById(`c${court}_b2`).value;
+    if (!a1 || !a2 || !b1 || !b2) {
+      document.getElementById('setupError').textContent = `Court ${court} is missing a player.`;
+      return;
+    }
+    for (const pid of [a1,a2,b1,b2]) {
+      if (usedPlayers.has(pid)) {
+        document.getElementById('setupError').textContent = 'Each player can only be assigned to one court.';
+        return;
+      }
+      usedPlayers.add(pid);
+    }
+    matches.push({ court, teamA: [a1,a2], teamB: [b1,b2] });
+  }
+  const res = await fetch('/api/rounds/setup', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ matches }),
+  });
+  if (res.ok) {
+    document.getElementById('setupError').textContent = '';
+    await refreshAll();
+  } else {
+    const err = await res.json();
+    document.getElementById('setupError').textContent = err.error;
+  }
+}
+
+function nameFor(id) {
+  const p = players.find(p => p._id === id);
+  return p ? p.name : '?';
+}
+
+function renderScoreForm() {
+  const latest = rounds[rounds.length - 1];
+  document.getElementById('currentRoundLabel').textContent = `Round ${latest.roundNumber}`;
+  const div = document.getElementById('scoreCourts');
+  let html = '';
+  for (const court of [1,2,3,4]) {
+    const m = latest.matches.find(x => x.court === court);
+    const played = m.winner === 'A' || m.winner === 'B';
+    const teamAName = m.teamA.map(nameFor).join(' & ');
+    const teamBName = m.teamB.map(nameFor).join(' & ');
+    if (played) {
+      const aTag = m.winner === 'A' ? ' <span class="winner-tag">WIN</span>' : '';
+      const bTag = m.winner === 'B' ? ' <span class="winner-tag">WIN</span>' : '';
+      html += `<div class="match-row">
+        <span class="court-badge court-${court}">Court ${court}</span>
+        <span>${teamAName}${aTag} (${m.teamAScore}) vs (${m.teamBScore}) ${teamBName}${bTag}</span>
+      </div>`;
+    } else {
+      html += `<div class="match-row">
+        <span class="court-badge court-${court}">Court ${court}</span>
+        <span>${teamAName}</span>
+        <input type="number" class="score-input" id="score_${court}_a" placeholder="0" />
+        <span>vs</span>
+        <input type="number" class="score-input" id="score_${court}_b" placeholder="0" />
+        <span>${teamBName}</span>
+        <button onclick="submitScore(${court})">Save</button>
+      </div>`;
+    }
+  }
+  div.innerHTML = html;
+}
+
+async function submitScore(court) {
+  const teamAScore = document.getElementById(`score_${court}_a`).value;
+  const teamBScore = document.getElementById(`score_${court}_b`).value;
+  const res = await fetch('/api/rounds/score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ court, teamAScore, teamBScore }),
+  });
+  const data = await res.json();
+  if (res.ok) {
+    document.getElementById('scoreError').textContent = '';
+    document.getElementById('scoreSuccess').textContent = data.nextRoundCreated ? 'Round complete! Next round generated.' : 'Score saved.';
+    await refreshAll();
+  } else {
+    document.getElementById('scoreError').textContent = data.error;
+    document.getElementById('scoreSuccess').textContent = '';
+  }
+}
+
+checkAuth();
+</script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Ladder Standings</title>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+<div class="container">
+  <h1>🏓 Ladder Standings</h1>
+
+  <div class="card">
+    <h2>Current Standings</h2>
+    <table id="standingsTable">
+      <thead>
+        <tr><th>#</th><th>Player</th><th>Points</th><th>W</th><th>L</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <p class="muted" id="noDataMsg" style="display:none;">No rounds played yet.</p>
+  </div>
+
+  <div class="card">
+    <h2>Round History</h2>
+    <div id="roundsContainer"></div>
+  </div>
+
+  <p class="muted"><a href="/admin">Admin login →</a></p>
+</div>
+
+<script>
+async function load() {
+  const [standingsRes, roundsRes, playersRes] = await Promise.all([
+    fetch('/api/standings').then(r => r.json()),
+    fetch('/api/rounds').then(r => r.json()),
+    fetch('/api/players').then(r => r.json()),
+  ]);
+
+  const nameById = {};
+  playersRes.forEach(p => { nameById[p._id] = p.name; });
+
+  const tbody = document.querySelector('#standingsTable tbody');
+  tbody.innerHTML = '';
+  if (standingsRes.length === 0) {
+    document.getElementById('noDataMsg').style.display = 'block';
+  }
+  standingsRes.forEach((row, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td class="${i===0?'rank-1':''}">${i+1}</td><td>${row.name}</td><td>${row.points}</td><td>${row.wins}</td><td>${row.losses}</td>`;
+    tbody.appendChild(tr);
+  });
+
+  const container = document.getElementById('roundsContainer');
+  container.innerHTML = '';
+  [...roundsRes].reverse().forEach(round => {
+    const div = document.createElement('div');
+    div.style.marginBottom = '16px';
+    let html = `<h3>Round ${round.roundNumber}</h3>`;
+    [1,2,3,4].forEach(court => {
+      const m = round.matches.find(x => x.court === court);
+      if (!m) return;
+      const teamAName = m.teamA.map(id => nameById[id] || '?').join(' & ');
+      const teamBName = m.teamB.map(id => nameById[id] || '?').join(' & ');
+      const played = m.winner === 'A' || m.winner === 'B';
+      const scoreText = played ? `${m.teamAScore} - ${m.teamBScore}` : 'not played yet';
+      const aTag = m.winner === 'A' ? ' <span class="winner-tag">WIN</span>' : '';
+      const bTag = m.winner === 'B' ? ' <span class="winner-tag">WIN</span>' : '';
+      html += `<div class="match-row">
+        <span class="court-badge court-${court}">Court ${court}</span>
+        <span>${teamAName}${aTag} vs ${teamBName}${bTag}</span>
+        <span class="muted">(${scoreText})</span>
+      </div>`;
+    });
+    div.innerHTML = html;
+    container.appendChild(div);
+  });
+}
+load();
+</script>
+</body>
+</html>
