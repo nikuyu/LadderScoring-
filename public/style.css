@@ -1,0 +1,70 @@
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  margin: 0;
+  padding: 16px;
+}
+h1, h2, h3 { color: #f8fafc; }
+a { color: #38bdf8; }
+.container { max-width: 720px; margin: 0 auto; }
+.card {
+  background: #1e293b;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 8px; border-bottom: 1px solid #334155; }
+th { color: #94a3b8; font-size: 0.85em; text-transform: uppercase; }
+.rank-1 { color: #facc15; font-weight: 700; }
+.court-badge {
+  display: inline-block;
+  background: #334155;
+  color: #f8fafc;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.85em;
+  margin-right: 6px;
+}
+.court-1 { background: #b91c1c; }
+.court-2 { background: #b45309; }
+.court-3 { background: #15803d; }
+.court-4 { background: #1d4ed8; }
+input, button, select {
+  font-size: 1em;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #334155;
+  background: #0f172a;
+  color: #f8fafc;
+  margin: 4px 0;
+}
+button {
+  background: #2563eb;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+button:hover { background: #1d4ed8; }
+button.secondary { background: #334155; }
+button.danger { background: #b91c1c; }
+.match-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: #0f172a;
+  border-radius: 8px;
+}
+.score-input { width: 60px; }
+.error { color: #f87171; margin: 8px 0; }
+.success { color: #4ade80; margin: 8px 0; }
+.muted { color: #94a3b8; font-size: 0.9em; }
+.player-select { min-width: 140px; }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.winner-tag { font-weight: 700; color: #4ade80; }

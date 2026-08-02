@@ -1,0 +1,12 @@
+{
+  "name": "ladder-app",
+  "version": "1.0.0",
+  "description": "4-court ladder game: admin keys in scores, auto-generates next round (movement + partner rotation).",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "mongodb": "^6.5.0"
+  }
+}
