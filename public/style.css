@@ -82,6 +82,96 @@ button.danger { background: #b91c1c; }
 .error { color: #f87171; margin: 8px 0; }
 .success { color: #4ade80; margin: 8px 0; }
 .muted { color: #94a3b8; font-size: 0.9em; }
-.player-select { min-width: 140px; }
 .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .winner-tag { font-weight: 700; color: #4ade80; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #334155;
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.9em;
+  user-select: none;
+}
+.chip-selected { background: #2563eb; box-shadow: 0 0 0 2px #93c5fd; }
+.setup-row { flex-direction: column; align-items: stretch; }
+.team-slots { display: flex; gap: 8px; }
+.vs-label { color: #94a3b8; font-size: 0.85em; text-align: center; }
+.slot {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.9em;
+  user-select: none;
+  border: 1px dashed #475569;
+  color: #64748b;
+}
+.slot-filled {
+  border: 1px solid #2563eb;
+  background: #1e3a8a;
+  color: #f8fafc;
+  font-weight: 600;
+}
+.court-card {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+}
+.court-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  color: #fff;
+}
+.court-header .court-num {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 700;
+}
+.court-header .court-title {
+  flex: 1;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.court-header .court-status {
+  font-size: 0.75em;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+}
+.team-block { flex: 1; text-align: center; }
+.team-block .team-names {
+  font-size: 0.88em;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+.team-block.team-win .team-names { color: #f8fafc; font-weight: 600; }
+.score-display { font-size: 1.7em; font-weight: 800; color: #f8fafc; }
+.score-row .score-input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.2em;
+  margin: 0;
+}
+.vs-label { color: #64748b; font-weight: 700; font-size: 0.8em; flex-shrink: 0; }
+.save-btn { display: block; width: calc(100% - 28px); margin: 0 14px 14px; }
