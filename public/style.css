@@ -16,12 +16,9 @@ a { color: #38bdf8; }
   margin: 4px 0 24px;
 }
 .logo {
-  height: clamp(48px, 12vw, 64px);
-  width: clamp(48px, 12vw, 64px);
-  border-radius: 50%;
-  background: #f8fafc;
-  padding: 4px;
-  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  height: clamp(40px, 10vw, 56px);
+  width: auto;
+  object-fit: contain;
   flex-shrink: 0;
 }
 .brand h1 {
