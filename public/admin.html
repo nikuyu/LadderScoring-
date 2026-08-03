@@ -77,7 +77,12 @@ async function login() {
     document.getElementById('adminArea').style.display = 'block';
     await refreshAll();
   } else {
-    document.getElementById('loginError').textContent = 'Wrong password.';
+    let message = 'Wrong password.';
+    try {
+      const err = await res.json();
+      if (err && err.error) message = err.error;
+    } catch (e) {}
+    document.getElementById('loginError').textContent = message;
   }
 }
 
