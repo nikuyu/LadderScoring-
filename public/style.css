@@ -115,3 +115,63 @@ button.danger { background: #b91c1c; }
   color: #f8fafc;
   font-weight: 600;
 }
+.court-card {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: #0f172a;
+  border: 1px solid #334155;
+}
+.court-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  color: #fff;
+}
+.court-header .court-num {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+  font-weight: 700;
+}
+.court-header .court-title {
+  flex: 1;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.court-header .court-status {
+  font-size: 0.75em;
+  font-weight: 600;
+  background: rgba(255,255,255,0.2);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.score-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+}
+.team-block { flex: 1; text-align: center; }
+.team-block .team-names {
+  font-size: 0.88em;
+  margin-bottom: 8px;
+  color: #cbd5e1;
+}
+.team-block.team-win .team-names { color: #f8fafc; font-weight: 600; }
+.score-display { font-size: 1.7em; font-weight: 800; color: #f8fafc; }
+.score-row .score-input {
+  width: 100%;
+  text-align: center;
+  font-size: 1.2em;
+  margin: 0;
+}
+.vs-label { color: #64748b; font-weight: 700; font-size: 0.8em; flex-shrink: 0; }
+.save-btn { display: block; width: calc(100% - 28px); margin: 0 14px 14px; }

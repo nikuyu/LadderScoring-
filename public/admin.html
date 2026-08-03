@@ -251,24 +251,30 @@ function renderScoreForm() {
     const played = m.winner === 'A' || m.winner === 'B';
     const teamAName = m.teamA.map(nameFor).join(' & ');
     const teamBName = m.teamB.map(nameFor).join(' & ');
-    if (played) {
-      const aTag = m.winner === 'A' ? ' <span class="winner-tag">WIN</span>' : '';
-      const bTag = m.winner === 'B' ? ' <span class="winner-tag">WIN</span>' : '';
-      html += `<div class="match-row">
-        <span class="court-badge court-${court}">Court ${court}</span>
-        <span>${teamAName}${aTag} (${m.teamAScore}) vs (${m.teamBScore}) ${teamBName}${bTag}</span>
+    const aWin = m.winner === 'A';
+    const bWin = m.winner === 'B';
+
+    const teamBlock = (name, isWin, scoreInputId, currentScore) => `
+      <div class="team-block${isWin ? ' team-win' : ''}">
+        <div class="team-names">${name}${isWin ? ' <span class="winner-tag">WIN</span>' : ''}</div>
+        ${played
+          ? `<div class="score-display">${currentScore}</div>`
+          : `<input type="number" class="score-input" id="${scoreInputId}" placeholder="0" />`}
       </div>`;
-    } else {
-      html += `<div class="match-row">
-        <span class="court-badge court-${court}">Court ${court}</span>
-        <span>${teamAName}</span>
-        <input type="number" class="score-input" id="score_${court}_a" placeholder="0" />
-        <span>vs</span>
-        <input type="number" class="score-input" id="score_${court}_b" placeholder="0" />
-        <span>${teamBName}</span>
-        <button onclick="submitScore(${court})">Save</button>
-      </div>`;
-    }
+
+    html += `<div class="court-card">
+      <div class="court-header court-${court}">
+        <span class="court-num">${court}</span>
+        <span class="court-title">COURT ${court}</span>
+        <span class="court-status">${played ? 'Played' : 'Pending'}</span>
+      </div>
+      <div class="score-row">
+        ${teamBlock(teamAName, aWin, `score_${court}_a`, m.teamAScore)}
+        <span class="vs-label">VS</span>
+        ${teamBlock(teamBName, bWin, `score_${court}_b`, m.teamBScore)}
+      </div>
+      ${played ? '' : `<button class="save-btn" onclick="submitScore(${court})">Save Score</button>`}
+    </div>`;
   }
   div.innerHTML = html;
 }
