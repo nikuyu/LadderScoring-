@@ -82,6 +82,36 @@ button.danger { background: #b91c1c; }
 .error { color: #f87171; margin: 8px 0; }
 .success { color: #4ade80; margin: 8px 0; }
 .muted { color: #94a3b8; font-size: 0.9em; }
-.player-select { min-width: 140px; }
 .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .winner-tag { font-weight: 700; color: #4ade80; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.chip {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: #334155;
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.9em;
+  user-select: none;
+}
+.chip-selected { background: #2563eb; box-shadow: 0 0 0 2px #93c5fd; }
+.setup-row { flex-direction: column; align-items: stretch; }
+.team-slots { display: flex; gap: 8px; }
+.vs-label { color: #94a3b8; font-size: 0.85em; text-align: center; }
+.slot {
+  flex: 1;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  cursor: pointer;
+  font-size: 0.9em;
+  user-select: none;
+  border: 1px dashed #475569;
+  color: #64748b;
+}
+.slot-filled {
+  border: 1px solid #2563eb;
+  background: #1e3a8a;
+  color: #f8fafc;
+  font-weight: 600;
+}

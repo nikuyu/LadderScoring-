@@ -37,7 +37,8 @@
 
     <div class="card" id="setupCard">
       <h2>Set Up Round 1</h2>
-      <p class="muted">Assign 4 players to each court (2 per team). This only happens once — every round after this is generated automatically.</p>
+      <p class="muted">Tap a player below, then tap a slot to place them. Tap a filled slot to send that player back to the pool. This only happens once — every round after this is generated automatically.</p>
+      <div id="setupPool"></div>
       <div id="setupCourts"></div>
       <button onclick="submitSetup()">Create Round 1</button>
       <p class="error" id="setupError"></p>
@@ -145,46 +146,79 @@ async function removePlayer(id) {
   await refreshAll();
 }
 
-function playerOptions(selectedId) {
-  return players.map(p => `<option value="${p._id}" ${p._id===selectedId?'selected':''}>${p.name}</option>`).join('');
+let setupAssignments = {}; // slot key e.g. "3_A0" -> playerId
+let setupSelectedPlayer = null;
+
+function setupSlotKey(court, team, idx) {
+  return `${court}_${team}${idx}`;
 }
 
 function renderSetupForm() {
+  const validIds = new Set(players.map(p => p._id));
+  for (const key of Object.keys(setupAssignments)) {
+    if (!validIds.has(setupAssignments[key])) delete setupAssignments[key];
+  }
+  if (setupSelectedPlayer && !validIds.has(setupSelectedPlayer)) setupSelectedPlayer = null;
+
+  const assignedIds = new Set(Object.values(setupAssignments));
+  const available = players.filter(p => !assignedIds.has(p._id));
+
+  const pool = document.getElementById('setupPool');
+  pool.innerHTML = '<p class="muted" style="margin:4px 0;">Available players:</p><div class="chip-row">' +
+    available.map(p => `<span class="chip ${setupSelectedPlayer === p._id ? 'chip-selected' : ''}" onclick="pickSetupPlayer('${p._id}')">${p.name}</span>`).join('') +
+    (available.length === 0 ? '<span class="muted">All assigned</span>' : '') +
+    '</div>';
+
+  const slot = (court, team, idx) => {
+    const key = setupSlotKey(court, team, idx);
+    const pid = setupAssignments[key];
+    const label = pid ? nameFor(pid) : `Team ${team}`;
+    return `<span class="slot ${pid ? 'slot-filled' : 'slot-empty'}" onclick="tapSetupSlot('${key}')">${label}</span>`;
+  };
+
   const div = document.getElementById('setupCourts');
   let html = '';
-  for (const court of [1,2,3,4]) {
-    html += `<div class="match-row">
+  for (const court of [1, 2, 3, 4]) {
+    html += `<div class="match-row setup-row">
       <span class="court-badge court-${court}">Court ${court}</span>
-      <select class="player-select" id="c${court}_a1"><option value="">Team A - Player 1</option>${playerOptions()}</select>
-      <select class="player-select" id="c${court}_a2"><option value="">Team A - Player 2</option>${playerOptions()}</select>
-      <span>vs</span>
-      <select class="player-select" id="c${court}_b1"><option value="">Team B - Player 1</option>${playerOptions()}</select>
-      <select class="player-select" id="c${court}_b2"><option value="">Team B - Player 2</option>${playerOptions()}</select>
+      <div class="team-slots">${slot(court, 'A', 0)}${slot(court, 'A', 1)}</div>
+      <span class="vs-label">vs</span>
+      <div class="team-slots">${slot(court, 'B', 0)}${slot(court, 'B', 1)}</div>
     </div>`;
   }
   div.innerHTML = html;
 }
 
+function pickSetupPlayer(id) {
+  setupSelectedPlayer = setupSelectedPlayer === id ? null : id;
+  renderSetupForm();
+}
+
+function tapSetupSlot(key) {
+  if (setupAssignments[key]) {
+    delete setupAssignments[key];
+    renderSetupForm();
+    return;
+  }
+  if (setupSelectedPlayer) {
+    setupAssignments[key] = setupSelectedPlayer;
+    setupSelectedPlayer = null;
+    renderSetupForm();
+  }
+}
+
 async function submitSetup() {
   const matches = [];
-  const usedPlayers = new Set();
-  for (const court of [1,2,3,4]) {
-    const a1 = document.getElementById(`c${court}_a1`).value;
-    const a2 = document.getElementById(`c${court}_a2`).value;
-    const b1 = document.getElementById(`c${court}_b1`).value;
-    const b2 = document.getElementById(`c${court}_b2`).value;
+  for (const court of [1, 2, 3, 4]) {
+    const a1 = setupAssignments[setupSlotKey(court, 'A', 0)];
+    const a2 = setupAssignments[setupSlotKey(court, 'A', 1)];
+    const b1 = setupAssignments[setupSlotKey(court, 'B', 0)];
+    const b2 = setupAssignments[setupSlotKey(court, 'B', 1)];
     if (!a1 || !a2 || !b1 || !b2) {
       document.getElementById('setupError').textContent = `Court ${court} is missing a player.`;
       return;
     }
-    for (const pid of [a1,a2,b1,b2]) {
-      if (usedPlayers.has(pid)) {
-        document.getElementById('setupError').textContent = 'Each player can only be assigned to one court.';
-        return;
-      }
-      usedPlayers.add(pid);
-    }
-    matches.push({ court, teamA: [a1,a2], teamB: [b1,b2] });
+    matches.push({ court, teamA: [a1, a2], teamB: [b1, b2] });
   }
   const res = await fetch('/api/rounds/setup', {
     method: 'POST',
@@ -192,6 +226,8 @@ async function submitSetup() {
     body: JSON.stringify({ matches }),
   });
   if (res.ok) {
+    setupAssignments = {};
+    setupSelectedPlayer = null;
     document.getElementById('setupError').textContent = '';
     await refreshAll();
   } else {
