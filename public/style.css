@@ -7,10 +7,28 @@ body {
   padding: 16px;
 }
 h1, h2, h3 { color: #f8fafc; }
-h1 { display: flex; align-items: center; gap: 10px; }
-.logo { height: 1em; width: auto; }
 a { color: #38bdf8; }
 .container { max-width: 720px; margin: 0 auto; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 4px 0 24px;
+}
+.logo {
+  height: clamp(48px, 12vw, 64px);
+  width: clamp(48px, 12vw, 64px);
+  border-radius: 50%;
+  background: #f8fafc;
+  padding: 4px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+  flex-shrink: 0;
+}
+.brand h1 {
+  margin: 0;
+  font-size: clamp(1.6em, 6vw, 2.2em);
+  letter-spacing: -0.01em;
+}
 .card {
   background: #1e293b;
   border-radius: 12px;
