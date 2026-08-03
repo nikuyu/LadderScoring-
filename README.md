@@ -1,18 +1,37 @@
-# Ladder App
+# Paddle Slayer Ladder
 
-4-court ladder game. Admin keys in scores, app auto-generates the next round. Public page shows live standings + round history, no login needed.
+Tier-based pickleball ladder scoresheet. A single-page app (`public/index.html`)
+handles everything — match entry, standings, player roster, admin edit-mode —
+and persists its whole state as one JSON blob through a tiny Node API.
 
-## Rules implemented
-- 4 courts, 2v2 (doubles). Court 1 = highest, Court 4 = lowest.
-- Winner: C4→C3, C3→C2, C2→C1, C1 stays.
-- Loser: stays at C2/C3/C4. Loser at C1 drops to C4.
-- Partner rotation: whenever two teams arrive together at a new court, they're
-  automatically cross-paired into new teams so nobody repeats last round's partner.
-- Scoring: Win = 10 + court bonus (C1 +4, C2 +3, C3 +2, C4 +1). Loss = 0.
+## How it works
 
-Round 1 is the only round set up manually (admin assigns the 16 players to
-courts/teams). Every round after that is generated automatically once all 4
-scores for the current round are entered.
+- **Men's / Women's ladders**, each with its own player roster and weekly
+  scoresheet.
+- Admin enters winners/losers per court per week in the Scoresheet tab; the
+  app computes win/loss records, court score (based on player tier: S/A/B/C),
+  and weighted points per player automatically.
+- Standings tab shows cumulative or weekly points, ranked.
+- Players tab (admin only) manages the roster — add players with a name,
+  optional handle/avatar (Reclub-style `@handle` + numeric avatar id), and a
+  tier.
+- The roster starts **empty** — add players from the Players tab once you're
+  logged in as admin.
+- Everything (roster, weekly scores, attendance) autosaves to the server as
+  one JSON document; there's no per-match database — the client owns the
+  data model and the server just stores/returns the blob.
+
+## Admin access
+
+Click **🔒 Admin** in the header and enter the password. It's set in
+`public/index.html` as `ADMIN_PASS` (search for `var ADMIN_PASS=`) —
+currently `slayer2026`. Change it there before you share the link publicly.
+
+Note: like the original system this was adapted from, admin gating is
+**client-side only** (a password check in the page's JS, not a server-side
+auth token). That's fine for keeping casual visitors from editing scores, but
+don't treat it as real security — anyone who reads the page source can see
+the password. Ask if you want server-side auth instead.
 
 ## Setup
 
@@ -20,44 +39,33 @@ scores for the current round are entered.
    ```
    npm install
    ```
-2. Copy `.env.example` to `.env` and fill in:
-   - `MONGODB_URI` — your MongoDB Atlas connection string
-   - `ADMIN_PASSWORD` — password for the /admin page
+2. Copy `.env.example` to `.env`. `MONGO_URI` is optional — without it, data
+   is stored in `data/scoresheet.json` locally (resets on redeploy).
 3. Run locally:
    ```
    node server.js
    ```
    (or `npm start`)
-4. Open `http://localhost:3000` for the public standings page, and
-   `http://localhost:3000/admin` to log in and run the ladder.
+4. Open `http://localhost:3000`.
 
-## Deploying (Render, same as your other app)
+## Deploying (Render, or similar)
 
 - Push this repo to GitHub.
-- New Web Service on Render → connect the repo.
+- New Web Service → connect the repo.
 - Build command: `npm install`
 - Start command: `node server.js`
-- Add environment variables `MONGODB_URI` and `ADMIN_PASSWORD` in Render's dashboard.
+- Optionally add `MONGO_URI` in the dashboard to persist data across deploys.
 
-## How a round works (admin side)
+## API
 
-1. **First time only:** add at least 16 players (Admin → Players), then use
-   "Set Up Round 1" to assign 4 players to each court (2 vs 2).
-2. Each week, open `/admin`, log in, and enter the score for each of the 4
-   courts. Winner is whichever score is higher (ties aren't allowed — pickleball
-   games don't end in a tie).
-3. Once all 4 scores for the round are in, the next round's courts/teams are
-   generated automatically and shown next time you open `/admin`.
-4. "Reset ladder" wipes all rounds/scores but keeps your player list, in case
-   you want to start a new season.
+- `GET /api/s5scoresheet` — returns the current saved state (`{}` if nothing
+  saved yet).
+- `POST /api/s5scoresheet` — replaces the saved state with the request body.
+- `POST /api/s5scoresheet/reset` — clears all saved data.
+- `GET /health` — storage status check.
 
-## Notes / assumptions worth knowing
-- Assumes exactly 16 active players (4 per court) each round. If your
-  attendance varies week to week, let me know and I can add a way to swap
-  a player in/out of Round 1 setup — right now the round-1 setup screen picks
-  from whatever's in the player list, but auto-generated rounds always carry
-  forward the same 16 people.
-- No login for the public view — anyone with the link can see standings/history.
-- Admin auth is a single shared password (session cookie, 12h), not per-admin
-  accounts — fine for one club admin, let me know if you want multiple admin
-  logins later.
+## Branding
+
+- Logo and colors are baked into `public/index.html` (`var BP=` holds the
+  logo as a base64 data URI; the header bar uses `#7f1d1d`).
+- Title: "Paddle Slayer Ladder".
