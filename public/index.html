@@ -126,7 +126,7 @@ input[type=text],input[type=password]{padding:8px 10px;border:1px solid #d1d5db;
 }</style>
 </head>
 <body>
-<script type="application/json" id="md">{"men":[],"women":[]}</script>
+<script type="application/json" id="md">[]</script>
 <script type="application/json" id="sd">{}</script>
 <div id="app"></div>
 <script>
@@ -136,40 +136,31 @@ var BP="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAV4CAYAAAAaC7U3AAAGrm
 var ADMIN_PASS="slayer2026";
 var CO=[1,3,5,7],CB={1:4,3:3,5:2,7:1},WP=10,MR=16,WK=[1,2,3,4];
 var CG={1:"g1",3:"g3",5:"g5",7:"g7"};
-var lg="men",tab="standings",aw=1,ac=1,st="cumulative",sq="";
+var tab="standings",aw=1,ac=1,st="cumulative",sq="";
 var isAdmin=false,showLoginModal=false,saving=false,loading=true;
-var gameCaps={men:{1:0,2:0,3:0,4:0},women:{1:0,2:0,3:0,4:0}}; // per league per week
+var gameCaps={1:0,2:0,3:0,4:0}; // per week
 
 function mkR(){var r={};CO.forEach(function(c){r[c]=[];for(var i=0;i<MR;i++)r[c].push({w1:"",w2:"",l1:"",l2:""});});return r;}
 function mkWks(){return {1:mkR(),2:mkR(),3:mkR(),4:mkR()};}
-var S={men:{at:{1:[],2:[],3:[],4:[]},rds:mkWks(),pl:null},women:{at:{1:[],2:[],3:[],4:[]},rds:mkWks(),pl:null}};
+var S={at:{1:[],2:[],3:[],4:[]},rds:mkWks(),pl:null};
 
-function gpl(){if(!S[lg].pl)S[lg].pl=JSON.parse(JSON.stringify(MASTER[lg]));return S[lg].pl;}
-function gat(){return S[lg].at[aw];}
-function grd(){return S[lg].rds[aw];}
+function gpl(){if(!S.pl)S.pl=JSON.parse(JSON.stringify(MASTER));return S.pl;}
+function gat(){return S.at[aw];}
+function grd(){return S.rds[aw];}
 function e(s){return String(s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function av(id){return id?"https://assets.reclub.co/user-avatars/"+id+".webp":"";}
-function acc(){return lg==="men"?"#1a1a1a":"#9333ea";}
+function acc(){return "#1a1a1a";}
 function tf(){return CO.reduce(function(s,c){return s+grd()[c].filter(function(r){return r.w1||r.w2;}).length;},0);}
 
 // ── Server sync ───────────────────────────────────────────────
 function toSave(){
-  // ensure players are initialised before saving
-  var curLg=lg;
-  lg="men";var mpl=gpl();lg="women";var wpl=gpl();lg=curLg;
-  return {
-    men:{at:S.men.at,rds:S.men.rds,pl:mpl},
-    women:{at:S.women.at,rds:S.women.rds,pl:wpl},
-    gameCaps:gameCaps
-  };
+  return { pl:gpl(), at:S.at, rds:S.rds, gameCaps:gameCaps };
 }
 function applyData(d){
-  if(!d||!d.men)return;
-  ["men","women"].forEach(function(x){
-    if(d[x].at)S[x].at=d[x].at;
-    if(d[x].rds)S[x].rds=d[x].rds;
-    if(d[x].pl&&d[x].pl.length)S[x].pl=d[x].pl;
-  });
+  if(!d||!d.rds)return;
+  if(d.at)S.at=d.at;
+  if(d.rds)S.rds=d.rds;
+  if(d.pl&&d.pl.length)S.pl=d.pl;
   if(d.gameCaps)gameCaps=d.gameCaps;
 }
 async function save(){
@@ -193,18 +184,17 @@ async function load(){
       loading=true;
       var res=await fetch("/api/s5scoresheet");
       var d=await res.json();
-      var w2len=d&&d.men&&d.men.at&&d.men.at[2]?d.men.at[2].length:0;
+      var w2len=d&&d.at&&d.at[2]?d.at[2].length:0;
       window.lastLoadDebug={
         status:res.status,
-        hasMen:!!(d&&d.men),
-        hasRds:!!(d&&d.men&&d.men.rds),
-        menAtKeys:d&&d.men&&d.men.at?Object.keys(d.men.at):[],
-        menAt2Len:w2len,
-        menRdsKeys:d&&d.men&&d.men.rds?Object.keys(d.men.rds):[],
+        hasRds:!!(d&&d.rds),
+        atKeys:d&&d.at?Object.keys(d.at):[],
+        at2Len:w2len,
+        rdsKeys:d&&d.rds?Object.keys(d.rds):[],
         rawKeys:d?Object.keys(d):[],
         retries:retries
       };
-      if(d&&d.men&&d.men.rds){
+      if(d&&d.rds){
         applyData(d);
         loading=false;
         render();
@@ -252,14 +242,12 @@ function rp(p){
 }
 
 function buildApp(){
-  var tcls="tm";
-  var hcls="hm";
   var spon="";
   var navs=[{id:"standings",l:"&#127942; Standings"},{id:"score",l:"&#128203; Scoresheet"}];
   if(isAdmin){navs.unshift({id:"attend",l:"&#128101; Hadir"});navs.push({id:"players",l:"&#9881; Players"});}
   var ntabs=navs.map(function(n){
     var ac2=tab===n.id;
-    var col=ac2?(lg==="men"?"color:#1a1a1a":"color:#7e22ce"):"";
+    var col=ac2?"color:#1a1a1a":"";
     return ["<button class=\"ntab",ac2?" active":"","\" onclick=\"sTab('",n.id,"')\" style=\"",col,"\">",n.l,"</button>"].join("");
   }).join("");
   var adminBtn=isAdmin
@@ -267,9 +255,9 @@ function buildApp(){
     :"<button class=\"btn-admin\" onclick=\"openLogin()\">&#128272; Admin</button>";
   var debugBtn=isAdmin?"<button class=\"btn-admin\" style=\"margin-left:5px;\" onclick=\"showDebug()\">&#128027; Debug</button>":"";
   var h=[];
-  h.push("<div class=\""+tcls+"\">");
+  h.push("<div class=\"tm\">");
   if(showLoginModal)h.push(buildLoginModal());
-  h.push("<div class=\"hdr "+hcls+"\">");
+  h.push("<div class=\"hdr hm\">");
   h.push("<div class=\"hdr-in\">");
   h.push("<div class=\"hdr-logos\">"+spon+"<img src=\""+BP+"\" class=\"bp-logo\" alt=\"Paddle Slayer\"></div>");
   h.push("<div style=\"display:flex;justify-content:space-between;align-items:flex-end;\">");
@@ -309,15 +297,15 @@ function bAt(){
   var wbtns=WK.map(function(w){return ["<button class=\"wbtn",aw===w?" active":"","\" onclick=\"sWk(",w,")\">Week ",w,"</button>"].join("");}).join("");
   var tiles=fil.map(function(p){
     var sel=at.indexOf(p.handle)>-1;
-    var sc=sel?(lg==="men"?"sm":"sw"):"";
-    var brd=sel?"border-color:"+(lg==="men"?"#ff6b35":"#9333ea")+";":"";
+    var sc=sel?"sm":"";
+    var brd=sel?"border-color:#ff6b35;":"";
     return ["<div class=\"ptile clickable ",sc,"\" onclick=\"tAt('",e(p.handle),"')\" style=\"",brd,"\">"
       ,"<div style=\"display:flex;align-items:center;gap:8px;\">",avImg(p.avatarId,p.name,"lg")
       ,"<div class=\"pnm\">",e(p.name),"</div></div></div>"].join("");
   }).join("");
   var h=[];
   h.push("<div class=\"acnt-row\"><div style=\"font-size:14px;font-weight:700;\">Week "+aw+" &mdash; Siapa Hadir?</div>");
-  h.push("<div class=\"acnt\" style=\"background:"+(lg==="men"?"#fff5f0":"#faf5ff")+";color:"+acc()+";border:1px solid "+acc()+"30;\">"+at.length+" / "+pl.length+"</div></div>");
+  h.push("<div class=\"acnt\" style=\"background:#fff5f0;color:"+acc()+";border:1px solid "+acc()+"30;\">"+at.length+" / "+pl.length+"</div></div>");
   h.push("<div class=\"wbtns\">"+wbtns+"</div>");
   h.push("<input class=\"search\" type=\"text\" placeholder=\"Cari nama...\" value=\""+e(sq)+"\" oninput=\"sq=this.value;rp('attend')\">");
   h.push("<div style=\"display:flex;gap:7px;margin-bottom:12px;\">");
@@ -390,7 +378,7 @@ function mSel(court,ri,field,val,excl,pl){
 }
 
 function bSt(){
-  var hbg=lg==="men"?"linear-gradient(135deg,#111,#2d2d2d)":"linear-gradient(135deg,#581c87,#9333ea)";
+  var hbg="linear-gradient(135deg,#111,#2d2d2d)";
   var wbtns=WK.map(function(w){return ["<button class=\"wbtn",aw===w?" active":"","\" onclick=\"sWk(",w,")\">Week ",w,"</button>"].join("");}).join("");
   var h=[];
   if(isAdmin){
@@ -399,7 +387,7 @@ function bSt(){
       h.push("<div style=\"font-size:12px;font-weight:700;color:#6b7280;\">Cap Week "+aw+":</div>");
       h.push("<div style=\"display:flex;gap:5px;\">");
       [0,7,8,9].forEach(function(n){
-        h.push("<button class=\"btn btn-sm\" style=\"background:"+(gameCaps[lg][aw]===n?"#7f1d1d":"#e5e7eb")+";color:"+(gameCaps[lg][aw]===n?"#fff":"#374151")+";\" onclick=\"setGameCap("+n+")\">"+(n===0?"All":n)+"</button>");
+        h.push("<button class=\"btn btn-sm\" style=\"background:"+(gameCaps[aw]===n?"#7f1d1d":"#e5e7eb")+";color:"+(gameCaps[aw]===n?"#fff":"#374151")+";\" onclick=\"setGameCap("+n+")\">"+(n===0?"All":n)+"</button>");
       });
       h.push("</div></div>");
     } else {
@@ -410,7 +398,7 @@ function bSt(){
         h.push("<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:5px;\">");
         h.push("<div style=\"font-size:11px;font-weight:700;width:50px;color:#374151;\">Week "+w+":</div>");
         [0,7,8,9].forEach(function(n){
-          h.push("<button class=\"btn btn-sm\" style=\"padding:3px 8px;font-size:10px;background:"+(gameCaps[lg][w]===n?"#7f1d1d":"#e5e7eb")+";color:"+(gameCaps[lg][w]===n?"#fff":"#374151")+";\" onclick=\"setGameCapWeek("+w+","+n+")\">"+(n===0?"All":n)+"</button>");
+          h.push("<button class=\"btn btn-sm\" style=\"padding:3px 8px;font-size:10px;background:"+(gameCaps[w]===n?"#7f1d1d":"#e5e7eb")+";color:"+(gameCaps[w]===n?"#fff":"#374151")+";\" onclick=\"setGameCapWeek("+w+","+n+")\">"+(n===0?"All":n)+"</button>");
         });
         h.push("</div>");
       });
@@ -429,7 +417,7 @@ function bSt(){
 }
 
 function cSt(wk){
-  var rds=S[lg].rds[wk],pl=gpl(),stats={},gl={};
+  var rds=S.rds[wk],pl=gpl(),stats={},gl={};
   pl.forEach(function(p){stats[p.handle]={name:p.name,avatarId:p.avatarId||"",w:0,l:0,g:0,pts:0};});
   CO.forEach(function(c){
     rds[c].forEach(function(r,idx){
@@ -442,7 +430,7 @@ function cSt(wk){
   Object.keys(gl).forEach(function(h){
     if(!stats[h])stats[h]={name:h,avatarId:"",w:0,l:0,g:0,pts:0};
     var allGames=gl[h];
-    var cap=gameCaps[lg][wk]||0;var cappedGames=cap>0?allGames.slice(0,cap):allGames;
+    var cap=gameCaps[wk]||0;var cappedGames=cap>0?allGames.slice(0,cap):allGames;
     stats[h].g=allGames.length; // actual games played
     cappedGames.forEach(function(g){var b=CB[g.c];if(g.res==="W"){stats[h].w++;stats[h].pts+=WP+b;}else{stats[h].l++;stats[h].pts+=b;}});
   });
@@ -501,14 +489,13 @@ function bPl(){
 }
 
 // Actions
-function sLg(x){lg=x;sq="";render();}
 function sTab(x){tab=x;render();}
 function sWk(x){aw=x;render();}
 function sAC(x){ac=x;rp("score");}
 function sSt(x){st=x;rp("standings");}
 function tAt(h){if(!isAdmin)return;var a=gat();var i=a.indexOf(h);if(i>-1)a.splice(i,1);else a.push(h);save();rp("attend");}
-function selAll(){if(!isAdmin)return;S[lg].at[aw]=gpl().map(function(p){return p.handle;});save();rp("attend");}
-function clrAt(){if(!isAdmin)return;S[lg].at[aw]=[];save();rp("attend");}
+function selAll(){if(!isAdmin)return;S.at[aw]=gpl().map(function(p){return p.handle;});save();rp("attend");}
+function clrAt(){if(!isAdmin)return;S.at[aw]=[];save();rp("attend");}
 function sF(c,ri,f,v){if(!isAdmin)return;grd()[c][ri][f]=v;save();rp("score");}
 function addPl(){
   if(!isAdmin)return;
@@ -534,15 +521,13 @@ function doLogin(){
 function doLogout(){isAdmin=false;tab="standings";render();}
 function expCSV(){
   if(!isAdmin)return;
-  var csv="League,Week,Court,Round,Menang1,Menang2,Kalah1,Kalah2\n";
+  var csv="Week,Court,Round,Menang1,Menang2,Kalah1,Kalah2\n";
   var noOf=function(h){var p=gpl().filter(function(x){return x.handle===h;})[0];return p?p.name:h;};
-  ["men","women"].forEach(function(x){
-    WK.forEach(function(w){CO.forEach(function(c){
-      S[x].rds[w][c].forEach(function(r,i){
-        if(r.w1||r.w2||r.l1||r.l2)csv+=x+","+w+","+c+","+(i+1)+","+noOf(r.w1)+","+noOf(r.w2)+","+noOf(r.l1)+","+noOf(r.l2)+"\n";
-      });
-    });});
-  });
+  WK.forEach(function(w){CO.forEach(function(c){
+    S.rds[w][c].forEach(function(r,i){
+      if(r.w1||r.w2||r.l1||r.l2)csv+=w+","+c+","+(i+1)+","+noOf(r.w1)+","+noOf(r.w2)+","+noOf(r.l1)+","+noOf(r.l2)+"\n";
+    });
+  });});
   navigator.clipboard.writeText(csv).then(function(){var b=document.getElementById("bex");if(b){b.textContent="Copied!";setTimeout(function(){b.textContent="&#128203; Export";},2000);}});
 }
 
@@ -593,14 +578,14 @@ function saveEditPl(i){
   var el=document.getElementById("edit-pl-modal");if(el)el.remove();
   save();rp("players");
 }
-function setGameCap(n){gameCaps[lg][aw]=n;save();render();}
-function setGameCapWeek(w,n){gameCaps[lg][w]=n;save();render();}
+function setGameCap(n){gameCaps[aw]=n;save();render();}
+function setGameCapWeek(w,n){gameCaps[w]=n;save();render();}
 function showDebug(){
   alert("LOAD DEBUG:\n"+JSON.stringify(window.lastLoadDebug,null,2));
 }
 window.setGameCap=setGameCap;
 window.setGameCapWeek=setGameCapWeek;window.showDebug=showDebug;
-window.sLg=sLg;window.sTab=sTab;window.sWk=sWk;window.sAC=sAC;window.sSt=sSt;
+window.sTab=sTab;window.sWk=sWk;window.sAC=sAC;window.sSt=sSt;
 window.tAt=tAt;window.selAll=selAll;window.clrAt=clrAt;window.sF=sF;
 window.addPl=addPl;window.rmPl=rmPl;window.pvAv=pvAv;window.expCSV=expCSV;window.expJSON=expJSON;
 window.editPl=editPl;window.prevEditAv=prevEditAv;window.closeEditPl=closeEditPl;window.saveEditPl=saveEditPl;
@@ -610,8 +595,9 @@ window.openLogin=openLogin;window.closeLogin=closeLogin;window.doLogin=doLogin;w
 function expJSON(){
   if(!isAdmin)return;
   var data={
-    men:{at:S.men.at,rds:S.men.rds,pl:gpl_for("men")},
-    women:{at:S.women.at,rds:S.women.rds,pl:gpl_for("women")},
+    pl:gpl(),
+    at:S.at,
+    rds:S.rds,
     gameCaps:gameCaps,
     exportedAt:new Date().toISOString()
   };
@@ -624,9 +610,6 @@ function expJSON(){
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
-}
-function gpl_for(x){
-  var cur=lg;lg=x;var p=gpl();lg=cur;return p;
 }
 
 load();</script>
