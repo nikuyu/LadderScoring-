@@ -58,11 +58,20 @@ the password. Ask if you want server-side auth instead.
 
 ## Deploying (Render, or similar)
 
+This repo includes a `render.yaml` Blueprint, so on Render you can just
+**New → Blueprint → connect this repo** and it configures the web service
+(build/start commands, health check) automatically.
+
+To set it up by hand instead:
 - Push this repo to GitHub.
 - New Web Service → connect the repo.
 - Build command: `npm install`
 - Start command: `node server.js`
-- Optionally add `MONGO_URI` in the dashboard to persist data across deploys.
+- Health check path: `/health`
+- Optionally add `MONGO_URI` in the dashboard to persist data across deploys
+  — without it, data is stored in a local JSON file that resets on every
+  redeploy (Render's disk is ephemeral unless you attach a persistent disk
+  or use Mongo).
 
 ## API
 
