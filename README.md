@@ -6,7 +6,8 @@ and persists its whole state as one JSON blob through a tiny Node API.
 
 ## How it works
 
-- A single ladder with one player roster and weekly scoresheet.
+- A single ladder with one player roster and one scoresheet — no weekly vs.
+  cumulative split, no week tabs. Everything is one ongoing session.
 - Admin assigns two players to Team A and two to Team B per match, then keys
   in each side's actual game score (e.g. 11-7). The winner is detected
   automatically from the score — no separate "who won" step. A match only
@@ -15,6 +16,9 @@ and persists its whole state as one JSON blob through a tiny Node API.
 - Points per player are still the fixed win/loss + court-bonus formula
   (win = 10 + court bonus, loss = court bonus) — the game score is recorded
   for the record, it doesn't change the points math.
+- Admin can set a "Game Cap" (7/8/9/All) on the Standings tab to only count
+  each player's first N games toward their total, in case some players get
+  more court time than others.
 - Standings tab shows cumulative or weekly points, ranked.
 - Players tab (admin only) manages the roster — add players with a name,
   optional handle/avatar (Reclub-style `@handle` + numeric avatar id), and a
