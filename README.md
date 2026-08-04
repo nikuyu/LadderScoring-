@@ -7,9 +7,14 @@ and persists its whole state as one JSON blob through a tiny Node API.
 ## How it works
 
 - A single ladder with one player roster and weekly scoresheet.
-- Admin enters winners/losers per court per week in the Scoresheet tab; the
-  app computes win/loss records, court score (based on player tier: S/A/B/C),
-  and weighted points per player automatically.
+- Admin assigns two players to Team A and two to Team B per match, then keys
+  in each side's actual game score (e.g. 11-7). The winner is detected
+  automatically from the score — no separate "who won" step. A match only
+  counts toward standings once both teams and a valid, non-tied score are
+  entered; the score inputs turn red if they're tied.
+- Points per player are still the fixed win/loss + court-bonus formula
+  (win = 10 + court bonus, loss = court bonus) — the game score is recorded
+  for the record, it doesn't change the points math.
 - Standings tab shows cumulative or weekly points, ranked.
 - Players tab (admin only) manages the roster — add players with a name,
   optional handle/avatar (Reclub-style `@handle` + numeric avatar id), and a
