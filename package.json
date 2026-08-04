@@ -1,7 +1,7 @@
 {
-  "name": "ladder-app",
+  "name": "paddle-slayer-ladder",
   "version": "1.0.0",
-  "description": "4-court ladder game: admin keys in scores, auto-generates next round (movement + partner rotation).",
+  "description": "Paddle Slayer tier-based pickleball ladder: scoresheet entry + standings, single-page app backed by a JSON blob API.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
