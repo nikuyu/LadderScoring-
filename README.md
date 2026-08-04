@@ -6,8 +6,7 @@ and persists its whole state as one JSON blob through a tiny Node API.
 
 ## How it works
 
-- **Men's / Women's ladders**, each with its own player roster and weekly
-  scoresheet.
+- A single ladder with one player roster and weekly scoresheet.
 - Admin enters winners/losers per court per week in the Scoresheet tab; the
   app computes win/loss records, court score (based on player tier: S/A/B/C),
   and weighted points per player automatically.

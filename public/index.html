@@ -252,8 +252,8 @@ function rp(p){
 }
 
 function buildApp(){
-  var tcls=lg==="men"?"tm":"tw2";
-  var hcls=lg==="men"?"hm":"hw";
+  var tcls="tm";
+  var hcls="hm";
   var spon="";
   var navs=[{id:"standings",l:"&#127942; Standings"},{id:"score",l:"&#128203; Scoresheet"}];
   if(isAdmin){navs.unshift({id:"attend",l:"&#128101; Hadir"});navs.push({id:"players",l:"&#9881; Players"});}
@@ -269,17 +269,14 @@ function buildApp(){
   var h=[];
   h.push("<div class=\""+tcls+"\">");
   if(showLoginModal)h.push(buildLoginModal());
-  h.push("<div class=\"league-bar\">");
-  h.push(["<button class=\"lbtn",lg==="men"?" ma":"","\" onclick=\"sLg('men')\"><img src=\"",BP,"\" alt=\"\">Men</button>"].join(""));
-  h.push(["<button class=\"lbtn",lg==="women"?" wa":"","\" onclick=\"sLg('women')\"><img src=\"",BP,"\" alt=\"\">Women</button>"].join(""));
-  h.push("</div><div class=\"hdr "+hcls+"\">");
+  h.push("<div class=\"hdr "+hcls+"\">");
   h.push("<div class=\"hdr-in\">");
   h.push("<div class=\"hdr-logos\">"+spon+"<img src=\""+BP+"\" class=\"bp-logo\" alt=\"Paddle Slayer\"></div>");
   h.push("<div style=\"display:flex;justify-content:space-between;align-items:flex-end;\">");
-  h.push("<div><div class=\"hdr-title\">"+(lg==="men"?"&#127955; Men&#39;s Ladder":"&#127955; Women&#39;s Ladder"));
+  h.push("<div><div class=\"hdr-title\">&#127955; Paddle Slayer Ladder");
   if(isAdmin)h.push("<span class=\"admin-badge\">ADMIN</span>");
   h.push("</div>");
-  h.push("<div class=\"hdr-sub\">"+(lg==="men"?"Men's Ladder":"Women's Ladder")+" &middot; Paddle Slayer");
+  h.push("<div class=\"hdr-sub\">Standings &amp; Scoresheet");
   h.push(" <span id=\"sync-ind\" style=\"font-size:10px;margin-left:8px;\"></span></div></div>");
   h.push("<div class=\"hdr-right\">");
   if(isAdmin){h.push("<button class=\"btn-exp\" onclick=\"expCSV()\">&#128203; CSV</button>");h.push("<button class=\"btn-exp\" style=\"background:#3b82f6;margin-left:5px;\" onclick=\"expJSON()\">&#128190; JSON</button>");}
@@ -622,7 +619,7 @@ function expJSON(){
   var url=URL.createObjectURL(blob);
   var a=document.createElement("a");
   a.href=url;
-  a.download="bangipicklers-s5-export-"+new Date().toISOString().slice(0,10)+".json";
+  a.download="paddle-slayer-export-"+new Date().toISOString().slice(0,10)+".json";
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
