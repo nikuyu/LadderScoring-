@@ -135,6 +135,7 @@ var BP="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABXgAAAV4CAYAAAAaC7U3AAAGrm
 var ADMIN_PASS="slayer2026";
 var CO=[1,3,5,7],CB={1:4,3:3,5:2,7:1},WP=10,MR=16;
 var CG={1:"g1",3:"g3",5:"g5",7:"g7"};
+var CN={1:1,3:2,5:3,7:4};
 var tab="standings",ac=1,sq="";
 var isAdmin=false,showLoginModal=false,saving=false,loading=true;
 var gameCap=0;
@@ -320,7 +321,7 @@ function bSc(){
     var f=grd()[c].filter(function(r){return rowResult(r);}).length;
     var isA=c===ac;
     return ["<button class=\"cpill",isA?" active":"","\" onclick=\"sAC(",c,")\">"
-      ,"Court ",c,f>0?["<span class=\"cc\" style=\"background:",isA?"rgba(255,255,255,.3)":"#ede9fe",";color:",isA?"#fff":"#5b21b6","\">",f,"</span>"].join(""):""
+      ,"Court ",CN[c],f>0?["<span class=\"cc\" style=\"background:",isA?"rgba(255,255,255,.3)":"#ede9fe",";color:",isA?"#fff":"#5b21b6","\">",f,"</span>"].join(""):""
       ,"</button>"].join("");
   }).join("");
   return "<div class=\"cpills\">"+pills+"</div>"+bCC();
@@ -357,10 +358,10 @@ function bCC(){
     row.push("</div>");
     rows.push(row.join(""));
   }
-  var emptyMsg=(!isAdmin&&rows.length===0)?"<div class=\"empty\">Belum ada result Court "+c+"</div>":"";
+  var emptyMsg=(!isAdmin&&rows.length===0)?"<div class=\"empty\">Belum ada result Court "+CN[c]+"</div>":"";
   var h=[];
   h.push("<div class=\"ccard\"><div class=\"chdr "+CG[c]+"\">");
-  h.push("<div class=\"chl\"><div class=\"cnum\">"+c+"</div><div class=\"cnm\">COURT "+c+"</div><div class=\"sbg\">W="+W+" L="+L+"</div></div>");
+  h.push("<div class=\"chl\"><div class=\"cnum\">"+CN[c]+"</div><div class=\"cnm\">COURT "+CN[c]+"</div><div class=\"sbg\">W="+W+" L="+L+"</div></div>");
   h.push("<div class=\"rbg\">"+f+"/"+MR+" rounds</div></div>");
   h.push("<div class=\"rch\"><div></div><div style=\"grid-column:span 2;color:#16a34a\">PASUKAN A</div><div style=\"grid-column:span 2;color:#6b7280\">SKOR</div><div style=\"grid-column:span 2;color:#2563eb\">PASUKAN B</div></div>");
   h.push("<div class=\"rbdy\">"+rows.join("")+emptyMsg+"</div></div>");
@@ -405,7 +406,7 @@ function bSt(){
 
 function cSt(){
   var rds=S.rds,pl=gpl(),stats={},gl={};
-  pl.forEach(function(p){stats[p.handle]={name:p.name,avatarId:p.avatarId||"",w:0,l:0,g:0,pts:0};});
+  pl.forEach(function(p){stats[p.handle]={name:p.name,avatarId:p.avatarId||"",w:0,l:0,g:0,pts:0,winPts:0,losePts:0};});
   CO.forEach(function(c){
     rds[c].forEach(function(r,idx){
       var res=rowResult(r);
@@ -416,11 +417,11 @@ function cSt(){
   });
   Object.keys(gl).forEach(function(h){gl[h].sort(function(a,b){return a.rn-b.rn;});});
   Object.keys(gl).forEach(function(h){
-    if(!stats[h])stats[h]={name:h,avatarId:"",w:0,l:0,g:0,pts:0};
+    if(!stats[h])stats[h]={name:h,avatarId:"",w:0,l:0,g:0,pts:0,winPts:0,losePts:0};
     var allGames=gl[h];
     var cap=gameCap||0;var cappedGames=cap>0?allGames.slice(0,cap):allGames;
     stats[h].g=allGames.length; // actual games played
-    cappedGames.forEach(function(g){var b=CB[g.c];if(g.res==="W"){stats[h].w++;stats[h].pts+=WP+b;}else{stats[h].l++;stats[h].pts+=b;}});
+    cappedGames.forEach(function(g){var b=CB[g.c];if(g.res==="W"){stats[h].w++;stats[h].winPts+=WP+b;stats[h].pts+=WP+b;}else{stats[h].l++;stats[h].losePts+=b;stats[h].pts+=b;}});
   });
   return stats;
 }
@@ -430,15 +431,16 @@ function bWSt(){
   return rows.length?bSTbl(rows):"<div class=\"empty\">Belum ada result lagi</div>";
 }
 function bSTbl(rows){
-  var leg=CO.map(function(c){return "<div class=\"schip\">Court "+c+": W="+(WP+CB[c])+" L="+CB[c]+"</div>";}).join("");
+  var leg=CO.map(function(c){return "<div class=\"schip\">Court "+CN[c]+": W="+(WP+CB[c])+" L="+CB[c]+"</div>";}).join("");
   var md=["&#127945;","&#127946;","&#127947;"];
   var trs=rows.map(function(x,i){
     return ["<tr><td>",(md[i]||i+1),"</td>",
       "<td><div style=\"display:flex;align-items:center;gap:8px;\">",avImg(x[1].avatarId,x[1].name,"sm"),"<span style=\"font-weight:600;\">",e(x[1].name),"</span></div></td>",
       "<td class=\"c\"><span class=\"pb\">",x[1].pts,"</span></td>",
+      "<td class=\"c wn\">",x[1].winPts,"</td><td class=\"c ln\">",x[1].losePts,"</td>",
       "<td class=\"c wn\">",x[1].w,"</td><td class=\"c ln\">",x[1].l,"</td><td class=\"c gn\">",x[1].g,"</td></tr>"].join("");
   }).join("");
-  return "<div class=\"sleg\">"+leg+"</div><div class=\"xtw\"><table><thead><tr><th>#</th><th>Player</th><th class=\"c\">Pts</th><th class=\"c\">W</th><th class=\"c\">L</th><th class=\"c\">Games</th></tr></thead><tbody>"+trs+"</tbody></table></div>";
+  return "<div class=\"sleg\">"+leg+"</div><div class=\"xtw\"><table><thead><tr><th>#</th><th>Player</th><th class=\"c\">Pts</th><th class=\"c\">Win Pts</th><th class=\"c\">Lose Pts</th><th class=\"c\">W</th><th class=\"c\">L</th><th class=\"c\">Games</th></tr></thead><tbody>"+trs+"</tbody></table></div>";
 }
 
 function bPl(){
@@ -501,7 +503,7 @@ function expCSV(){
       var res=rowResult(r);
       if(!res)return;
       var winner=res.win.indexOf(r.a1)>-1?"A":"B";
-      csv+=c+","+(i+1)+","+noOf(r.a1)+","+noOf(r.a2)+","+r.sa+","+r.sb+","+noOf(r.b1)+","+noOf(r.b2)+","+winner+"\n";
+      csv+=CN[c]+","+(i+1)+","+noOf(r.a1)+","+noOf(r.a2)+","+r.sa+","+r.sb+","+noOf(r.b1)+","+noOf(r.b2)+","+winner+"\n";
     });
   });
   navigator.clipboard.writeText(csv).then(function(){var b=document.getElementById("bex");if(b){b.textContent="Copied!";setTimeout(function(){b.textContent="&#128203; Export";},2000);}});
