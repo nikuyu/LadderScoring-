@@ -462,6 +462,11 @@ function bPl(){
   h.push("<div style=\"font-size:12px;font-weight:700;color:#6b7280;margin-bottom:8px;\">"+pl.length+" players</div>");
   h.push("<div class=\"xtw\" style=\"background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;\">");
   h.push("<table><thead><tr><th></th><th>Name</th><th>Handle</th><th></th></tr></thead><tbody>"+rows+"</tbody></table></div>");
+  h.push("<div class=\"aform\" style=\"margin-top:16px;border-color:#fecaca;\">");
+  h.push("<div style=\"font-size:13px;font-weight:700;margin-bottom:6px;color:#7f1d1d;\">&#9888; Reset Scores</div>");
+  h.push("<div style=\"font-size:12px;color:#6b7280;margin-bottom:12px;\">Padam semua match result &amp; attendance. Player list ("+pl.length+" players) akan kekal.</div>");
+  h.push("<button class=\"btn btn-r\" onclick=\"resetScores()\">&#128465; Reset Scores</button>");
+  h.push("</div>");
   return h.join("");
 }
 
@@ -485,6 +490,12 @@ function addPl(){
   save();rp("players");
 }
 function rmPl(i){if(!isAdmin)return;if(!confirm("Remove player?"))return;gpl().splice(i,1);save();rp("players");}
+function resetScores(){
+  if(!isAdmin)return;
+  if(!confirm("Reset semua scoresheet & attendance? Player list akan kekal. Tindakan ini tak boleh undo."))return;
+  S.rds=mkR();S.at=[];gameCap=0;
+  save();render();
+}
 function pvAv(id){var img=document.getElementById("avp");if(img&&id)img.src=av(id);}
 function openLogin(){showLoginModal=true;render();setTimeout(function(){var el=document.getElementById("mpw");if(el)el.focus();},100);}
 function closeLogin(evt){if(evt&&evt.target!==evt.currentTarget)return;showLoginModal=false;render();}
@@ -564,7 +575,7 @@ window.setGameCap=setGameCap;
 window.showDebug=showDebug;
 window.sTab=sTab;window.sAC=sAC;
 window.tAt=tAt;window.selAll=selAll;window.clrAt=clrAt;window.sF=sF;
-window.addPl=addPl;window.rmPl=rmPl;window.pvAv=pvAv;window.expCSV=expCSV;window.expJSON=expJSON;
+window.addPl=addPl;window.rmPl=rmPl;window.pvAv=pvAv;window.expCSV=expCSV;window.expJSON=expJSON;window.resetScores=resetScores;
 window.editPl=editPl;window.prevEditAv=prevEditAv;window.closeEditPl=closeEditPl;window.saveEditPl=saveEditPl;
 window.openLogin=openLogin;window.closeLogin=closeLogin;window.doLogin=doLogin;window.doLogout=doLogout;
 
