@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>Paddle Slayer Ladder</title>
+<title>PADDLE SLAYER OPEN DAY @ TOMAZ [ LADDER BATTLE + MYSTERY PRIZES ✨]</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>*{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',system-ui,sans-serif;min-height:100vh;background:#f1f5f9;}
@@ -14,7 +14,7 @@ body{font-family:'Inter',system-ui,sans-serif;min-height:100vh;background:#f1f5f
 .lbtn.wa{background:rgba(147,102,200,0.15);color:#c084fc;border-bottom-color:#c084fc;}
 .hdr{padding:16px 16px 0;}.hdr-in{max-width:760px;margin:0 auto;}
 .hdr-title{font-size:21px;font-weight:800;letter-spacing:-0.5px;color:#fff;display:flex;align-items:center;}
-.hdr-title-logo{height:26px;width:26px;object-fit:contain;border-radius:6px;flex-shrink:0;margin-right:8px;}
+.hdr-title-logo{height:52px;width:52px;object-fit:contain;border-radius:10px;flex-shrink:0;margin-right:10px;}
 .hdr-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:3px;}
 .hdr-right{display:flex;align-items:center;gap:8px;}
 .btn-exp{border:none;border-radius:8px;padding:8px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:#f59e0b;color:#fff;}
@@ -262,7 +262,7 @@ function buildApp(){
   h.push("<div class=\"hdr hm\">");
   h.push("<div class=\"hdr-in\">");
   h.push("<div style=\"display:flex;justify-content:space-between;align-items:flex-end;\">");
-  h.push("<div><div class=\"hdr-title\"><img src=\""+BP+"\" class=\"hdr-title-logo\" alt=\"Paddle Slayer\">Paddle Slayer Ladder");
+  h.push("<div><div class=\"hdr-title\"><img src=\""+BP+"\" class=\"hdr-title-logo\" alt=\"Paddle Slayer\">PADDLE SLAYER OPEN DAY @ TOMAZ [ LADDER BATTLE + MYSTERY PRIZES &#10024;]");
   if(isAdmin)h.push("<span class=\"admin-badge\">ADMIN</span>");
   h.push("</div>");
   h.push("<div class=\"hdr-sub\">Standings &amp; Scoresheet");
@@ -462,6 +462,11 @@ function bPl(){
   h.push("<div style=\"font-size:12px;font-weight:700;color:#6b7280;margin-bottom:8px;\">"+pl.length+" players</div>");
   h.push("<div class=\"xtw\" style=\"background:#fff;border-radius:12px;border:1px solid #e5e7eb;overflow:hidden;\">");
   h.push("<table><thead><tr><th></th><th>Name</th><th>Handle</th><th></th></tr></thead><tbody>"+rows+"</tbody></table></div>");
+  h.push("<div class=\"aform\" style=\"margin-top:16px;border-color:#fecaca;\">");
+  h.push("<div style=\"font-size:13px;font-weight:700;margin-bottom:6px;color:#7f1d1d;\">&#9888; Reset Scores</div>");
+  h.push("<div style=\"font-size:12px;color:#6b7280;margin-bottom:12px;\">Padam semua match result &amp; attendance. Player list ("+pl.length+" players) akan kekal.</div>");
+  h.push("<button class=\"btn btn-r\" onclick=\"resetScores()\">&#128465; Reset Scores</button>");
+  h.push("</div>");
   return h.join("");
 }
 
@@ -485,6 +490,12 @@ function addPl(){
   save();rp("players");
 }
 function rmPl(i){if(!isAdmin)return;if(!confirm("Remove player?"))return;gpl().splice(i,1);save();rp("players");}
+function resetScores(){
+  if(!isAdmin)return;
+  if(!confirm("Reset semua scoresheet & attendance? Player list akan kekal. Tindakan ini tak boleh undo."))return;
+  S.rds=mkR();S.at=[];gameCap=0;
+  save();render();
+}
 function pvAv(id){var img=document.getElementById("avp");if(img&&id)img.src=av(id);}
 function openLogin(){showLoginModal=true;render();setTimeout(function(){var el=document.getElementById("mpw");if(el)el.focus();},100);}
 function closeLogin(evt){if(evt&&evt.target!==evt.currentTarget)return;showLoginModal=false;render();}
@@ -564,7 +575,7 @@ window.setGameCap=setGameCap;
 window.showDebug=showDebug;
 window.sTab=sTab;window.sAC=sAC;
 window.tAt=tAt;window.selAll=selAll;window.clrAt=clrAt;window.sF=sF;
-window.addPl=addPl;window.rmPl=rmPl;window.pvAv=pvAv;window.expCSV=expCSV;window.expJSON=expJSON;
+window.addPl=addPl;window.rmPl=rmPl;window.pvAv=pvAv;window.expCSV=expCSV;window.expJSON=expJSON;window.resetScores=resetScores;
 window.editPl=editPl;window.prevEditAv=prevEditAv;window.closeEditPl=closeEditPl;window.saveEditPl=saveEditPl;
 window.openLogin=openLogin;window.closeLogin=closeLogin;window.doLogin=doLogin;window.doLogout=doLogout;
 
