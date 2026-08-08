@@ -36,10 +36,9 @@ body{font-family:'Inter',system-ui,sans-serif;min-height:100vh;background:#f1f5f
 .footer-lbl{font-size:11px;font-weight:700;letter-spacing:1px;color:#9ca3af;text-transform:uppercase;margin-bottom:14px;}
 .footer-logos{display:flex;align-items:center;justify-content:center;gap:28px;flex-wrap:wrap;}
 .footer-logo{height:36px;object-fit:contain;}
-.footer-qr{margin-bottom:28px;}
-.footer-qr-img{width:180px;height:auto;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-.footer-jersey{margin-bottom:28px;}
-.footer-jersey-img{width:220px;height:auto;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.footer-promo{display:flex;align-items:flex-start;justify-content:center;gap:32px;flex-wrap:wrap;margin-bottom:28px;}
+.footer-qr-img{width:170px;height:auto;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+.footer-jersey-img{width:150px;height:auto;border-radius:12px;border:1px solid #e5e7eb;box-shadow:0 2px 8px rgba(0,0,0,0.08);}
 .pg{display:none;}.pg.active{display:block;}
 /* Login modal */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;display:flex;align-items:center;justify-content:center;}
@@ -316,10 +315,12 @@ function buildApp(){
   if(isAdmin)h.push("<div id=\"pg-players\" class=\"pg"+(tab==="players"?" active":"")+"\">"+bPl()+"</div>");
   h.push("</div>");
   h.push("<div class=\"footer\">");
-  h.push("<div class=\"footer-qr\"><div class=\"footer-lbl\">Join Our WhatsApp Community</div>"
-    +"<img src=\""+QR_WA+"\" class=\"footer-qr-img\" alt=\"Paddle Slayer Community WhatsApp QR\"></div>");
-  h.push("<div class=\"footer-jersey\"><div class=\"footer-lbl\">Official Jersey</div>"
-    +"<img src=\""+JERSEY_IMG+"\" class=\"footer-jersey-img\" alt=\"Paddle Slayer Official Jersey\"></div>");
+  h.push("<div class=\"footer-promo\">"
+    +"<div class=\"footer-qr\"><div class=\"footer-lbl\">Join Our WhatsApp Community</div>"
+    +"<img src=\""+QR_WA+"\" class=\"footer-qr-img\" alt=\"Paddle Slayer Community WhatsApp QR\"></div>"
+    +"<div class=\"footer-jersey\"><div class=\"footer-lbl\">Official Jersey</div>"
+    +"<img src=\""+JERSEY_IMG+"\" class=\"footer-jersey-img\" alt=\"Paddle Slayer Official Jersey\"></div>"
+    +"</div>");
   h.push("<div class=\"footer-lbl\">Supported by</div><div class=\"footer-logos\">"
     +"<img src=\""+SP_FITBAR+"\" class=\"footer-logo\" alt=\"Fitbar\">"
     +"<img src=\""+SP_YAYASAN+"\" class=\"footer-logo\" alt=\"Yayasan Didik Negara\">"
