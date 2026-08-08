@@ -16,9 +16,9 @@ body{font-family:'Inter',system-ui,sans-serif;min-height:100vh;background:#f1f5f
 .hdr-title{font-size:21px;font-weight:800;letter-spacing:-0.5px;color:#fff;display:flex;align-items:center;}
 .hdr-title-logo{height:52px;width:52px;object-fit:contain;border-radius:10px;flex-shrink:0;margin-right:10px;}
 .hdr-sub{font-size:11px;color:rgba(255,255,255,0.65);margin-top:3px;}
-.hdr-host{font-size:12px;color:rgba(255,255,255,0.85);margin-top:6px;display:flex;align-items:center;gap:6px;}
-.hdr-host input{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:#fff;font-size:12px;padding:3px 8px;width:160px;}
-.hdr-host input::placeholder{color:rgba(255,255,255,0.5);}
+.hdr-host{font-size:12px;color:rgba(255,255,255,0.85);margin-top:6px;display:flex;align-items:center;gap:8px;}
+.hdr-host select{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:6px;color:#fff;font-size:12px;padding:3px 8px;max-width:160px;}
+.hdr-host select option{color:#1a1a1a;}
 .hdr-right{display:flex;align-items:center;gap:8px;}
 .btn-exp{border:none;border-radius:8px;padding:8px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:#f59e0b;color:#fff;}
 .btn-admin{border:none;border-radius:8px;padding:8px 13px;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);}
@@ -149,7 +149,7 @@ var CN={1:1,3:2,5:3,7:4};
 var tab="standings",ac=1,sq="";
 var isAdmin=false,showLoginModal=false,saving=false,loading=true;
 var gameCap=0;
-var hostName="";
+var hostHandle="";
 
 function mkR(){var r={};CO.forEach(function(c){r[c]=[];for(var i=0;i<MR;i++)r[c].push({a1:"",a2:"",b1:"",b2:"",sa:"",sb:""});});return r;}
 var S={at:[],rds:mkR(),pl:null};
@@ -170,7 +170,7 @@ function tf(){return CO.reduce(function(s,c){return s+grd()[c].filter(function(r
 
 // ── Server sync ───────────────────────────────────────────────
 function toSave(){
-  return { pl:gpl(), at:S.at, rds:S.rds, gameCap:gameCap, host:hostName };
+  return { pl:gpl(), at:S.at, rds:S.rds, gameCap:gameCap, host:hostHandle };
 }
 function applyData(d){
   if(!d||!d.rds)return;
@@ -178,7 +178,7 @@ function applyData(d){
   if(d.rds)S.rds=d.rds;
   if(d.pl&&d.pl.length)S.pl=d.pl;
   if(d.gameCap!==undefined)gameCap=d.gameCap;
-  if(d.host!==undefined)hostName=d.host;
+  if(d.host!==undefined)hostHandle=d.host;
 }
 async function save(){
   try{
@@ -279,10 +279,13 @@ function buildApp(){
   h.push("</div>");
   h.push("<div class=\"hdr-sub\">Standings &amp; Scoresheet");
   h.push(" <span id=\"sync-ind\" style=\"font-size:10px;margin-left:8px;\"></span></div>");
+  var hostPl=gpl().filter(function(p){return p.handle===hostHandle;})[0];
   if(isAdmin){
-    h.push("<div class=\"hdr-host\">&#128100; Host Bertugas: <input type=\"text\" id=\"hostIn\" value=\""+e(hostName)+"\" placeholder=\"Nama host\" onchange=\"setHost(this.value)\"></div>");
-  }else if(hostName){
-    h.push("<div class=\"hdr-host\">&#128100; Host Bertugas: "+e(hostName)+"</div>");
+    var hostOpts=gpl().map(function(p){return ["<option value=\"",e(p.handle),"\"",p.handle===hostHandle?" selected":"",">",e(p.name),"</option>"].join("");}).join("");
+    h.push("<div class=\"hdr-host\">&#128100; Host Bertugas: <select id=\"hostIn\" onchange=\"setHost(this.value)\"><option value=\"\">&#8212; pilih host &#8212;</option>"+hostOpts+"</select>"
+      +(hostPl?avImg(hostPl.avatarId,hostPl.name,"sm"):"")+"</div>");
+  }else if(hostPl){
+    h.push("<div class=\"hdr-host\">&#128100; Host Bertugas: "+avImg(hostPl.avatarId,hostPl.name,"sm")+"<span>"+e(hostPl.name)+"</span></div>");
   }
   h.push("</div>");
   h.push("<div class=\"hdr-right\">");
@@ -592,7 +595,7 @@ function saveEditPl(i){
   save();rp("players");
 }
 function setGameCap(n){gameCap=n;save();render();}
-function setHost(v){if(!isAdmin)return;hostName=v;save();}
+function setHost(v){if(!isAdmin)return;hostHandle=v;save();render();}
 function showDebug(){
   alert("LOAD DEBUG:\n"+JSON.stringify(window.lastLoadDebug,null,2));
 }
